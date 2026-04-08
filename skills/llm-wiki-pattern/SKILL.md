@@ -20,8 +20,18 @@ Build persistent, compounding personal knowledge bases with native Obsidian vaul
 
 ## 🎯 FIRST THING TO DO: Show Interactive Menu
 
+### Memory Feature: Remember Last Vault
+
+**When the skill loads:**
+1. First check if a vault path was previously saved in the `llm-wiki-memory.json` file in this skill directory
+2. If a vault path exists AND the vault still exists, add an extra option to the menu: `0. 📂 Open last vault: [vault-path]`
+3. This provides one-click access for returning users
+
+### Show Interactive Menu
+
 WHEN THIS SKILL LOADS, ALWAYS START BY SHOWING THIS MENU:
 
+If no vault saved:
 ```
 🧠 Welcome to LLM Wiki Pattern!
 
@@ -33,7 +43,20 @@ What would you like to do?
 4. ❓ Just ask a question
 ```
 
-Then ask the user to pick an option (1-4).
+If vault saved (and still exists):
+```
+🧠 Welcome to LLM Wiki Pattern!
+
+What would you like to do?
+
+0. 📂 Open last vault: [saved-path]
+1. 🆕 Create a new Obsidian vault
+2. 📂 Open an existing Obsidian vault
+3. 📖 Learn more about what this skill can do
+4. ❓ Just ask a question
+```
+
+Then ask the user to pick an option.
 
 ---
 
@@ -74,7 +97,23 @@ Then ask the user to pick an option (1-4).
    - On Windows: `C:\Users\[username]\Obsidian\[vault-name]`
    - On Mac/Linux: `~/Obsidian\[vault-name]`
 3. Create structure and initialize core files
-4. Show the "What's Next" menu
+4. **Save the full vault path** to `llm-wiki-memory.json` in this skill directory for future quick access
+5. Show the "What's Next" menu
+
+The memory file format:
+```json
+{
+  "last_vault_path": "/full/path/to/vault",
+  "last_vault_name": "vault-name"
+}
+```
+
+### Option 0: Open Last Vault (from memory)
+
+1. Use the saved path from `llm-wiki-memory.json
+2. Verify the vault still exists
+3. Load it directly - no need to ask for path again
+4. Show current status and "What's Next" menu
 
 ### Option 2: Open Existing Vault
 
@@ -82,7 +121,8 @@ Then ask the user to pick an option (1-4).
 2. Check for `.obsidian/` folder to confirm
 3. Look for existing `LLM-Wiki/` folder
 4. If found, load and show current status
-5. If not found, offer to initialize LLM-Wiki structure
+5. **Save the full vault path** to `llw-wiki-memory.json` for future quick access
+6. If not found, offer to initialize LLM-Wiki structure (and save path after initialization)
 
 ### Option 3: Learn More
 
@@ -259,7 +299,8 @@ tags: [changelog, llm-wiki]
 - **Default location**: Use standard Obsidian folder
   - Windows: `C:\Users\[name]\Obsidian\`
   - Mac/Linux: `~/Obsidian/`
-- **Remember**: If user has a preferred location, use that!
+- **Persistent memory**: After first use, the vault path is saved in `llm-wiki-memory.json`
+- **One-click access**: Next time you use the skill, you can directly open the last vault without retyping the path
 - **Ask**: "Should I create it in the default Obsidian folder, or somewhere else?"
 
 ### After Each Action
@@ -274,6 +315,17 @@ Show a "What's next?" menu:
 3. 🔍 Check wiki health
 4. 👋 Take a break
 ```
+
+---
+
+## 💾 Memory Management
+
+The skill persists the last used vault path in `skills/llm-wiki-pattern/llm-wiki-memory.json`. This enables:
+
+- **One-click access** when returning to your wiki
+- **No need to re-type** the full path every time
+- **Auto-switch**: Opening a different vault automatically updates the saved path
+- **To forget/switch**: Just select "Open an existing Obsidian vault" and enter a new path - the memory will update automatically
 
 ---
 
