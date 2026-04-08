@@ -24,8 +24,9 @@ Build persistent, compounding personal knowledge bases with native Obsidian vaul
 
 **When the skill loads:**
 1. First check if a vault path was previously saved in the `llm-wiki-memory.json` file in this skill directory
-2. If a vault path exists AND the vault still exists, add an extra option to the menu: `0. 📂 Open last vault: [vault-path]`
-3. This provides one-click access for returning users
+2. If a vault path exists **AND** the vault still exists (`.obsidian/` folder found), add an extra option to the menu: `0. 📂 Open last vault: [vault-path]`
+3. If the saved path **no longer exists**, automatically clear the expired memory and show the normal menu (no extra option)
+4. This provides one-click access for returning users
 
 ### Show Interactive Menu
 
@@ -96,15 +97,29 @@ Then ask the user to pick an option.
 2. Suggest default location: `~/Obsidian/[vault-name]`
    - On Windows: `C:\Users\[username]\Obsidian\[vault-name]`
    - On Mac/Linux: `~/Obsidian\[vault-name]`
-3. Create structure and initialize core files
-4. **Save the full vault path** to `llm-wiki-memory.json` in this skill directory for future quick access
-5. Show the "What's Next" menu
+3. Create directory structure:
+   ```
+   [vault]/
+   ├── .obsidian/ (if not exists)
+   ├── Attachments/
+   └── LLM-Wiki/
+       ├── Notes/
+       ├── Concepts/
+       ├── HELP.md
+       ├── Index.md
+       ├── Schema.md
+       └── ChangeLog.md
+   ```
+4. Create and initialize all 4 core files using the templates provided
+5. **Save the full vault path** to `llm-wiki-memory.json` in this skill directory for future quick access
+6. Show the "What's Next" menu
 
 The memory file format:
 ```json
 {
   "last_vault_path": "/full/path/to/vault",
-  "last_vault_name": "vault-name"
+  "last_vault_name": "vault-name",
+  "last_opened": "ISO-8601-date"
 }
 ```
 
@@ -117,12 +132,19 @@ The memory file format:
 
 ### Option 2: Open Existing Vault
 
-1. Ask for vault path
-2. Check for `.obsidian/` folder to confirm
-3. Look for existing `LLM-Wiki/` folder
-4. If found, load and show current status
-5. **Save the full vault path** to `llw-wiki-memory.json` for future quick access
-6. If not found, offer to initialize LLM-Wiki structure (and save path after initialization)
+1. Ask for vault path (user can paste full path from Obsidian)
+2. Check for `.obsidian/` folder to confirm this is really an Obsidian vault
+3. Look for existing `LLM-Wiki/` folder structure
+4. If found:
+   - Count existing notes/concepts
+   - Show status: "Found LLM-Wiki with X notes and Y concepts"
+   - Save the full vault path to `llm-wiki-memory.json`
+   - Show "What's Next" menu
+5. If not found:
+   - Offer: "This is an Obsidian vault but doesn't have LLM-Wiki structure yet. Shall I initialize it?"
+   - If user agrees, create the full structure and initialize all core files
+   - Save path to memory after initialization
+   - Show "What's Next" menu
 
 ### Option 3: Learn More
 
@@ -158,18 +180,28 @@ Show this section of the skill and then return to the main menu.
    - Topic (create from scratch)
    - File (PDF, doc, etc.)
 2. Process and identify key concepts
-3. Show a preview of what will be created
-4. Confirm before writing
-5. Update Index.md and ChangeLog.md
+3. Determine target file path (LLM-Wiki/Notes/ or LLM-Wiki/Concepts/)
+4. **Check for conflicts**: If a file with the same name already exists:
+   - Ask user: "A page named 'X' already exists. Would you like to (O)verwrite, (R)ename, or (C)ancel?"
+   - Respect the user's choice
+5. Show a preview of what will be created
+6. Confirm before writing
+7. After writing, update Index.md (if needed) and log entry in ChangeLog.md
 
 ### 2. Query (Answer Questions)
 
 **Interactive Flow:**
 1. Load Index.md and scan for relevant pages
-2. Synthesize answer from wiki content
-3. If answer is good:
-   - "This would make a great wiki page! Want me to save it?"
-4. Always log the query in ChangeLog.md
+2. Synthesize answer from existing wiki content
+3. Show the answer to the user
+4. If the answer is comprehensive and good:
+   - "This comprehensive answer would make a great wiki page! Want me to save it to your wiki?"
+   - If user confirms:
+     - Save to `LLM-Wiki/Notes/` as a new page
+     - Add to Index and log in ChangeLog
+5. **Always log the query** in ChangeLog.md even if you don't save the full answer
+
+**Best Practice:** Save answers that are likely to be useful again in the future - this builds your compounding knowledge!
 
 ### 3. Lint (Health Check)
 
@@ -219,8 +251,9 @@ Just talk to Claude! Try:
 ## Tips
 
 1. Use [[WikiLinks]] to connect ideas
-2. Explore the Graph View in Obsidian!
-3. Install Dataview plugin for dynamic queries
+2. Explore the Graph View in Obsidian to see knowledge connections
+3. **Install the Dataview plugin** for dynamic tables on the [[Index]] page
+4. See [[Schema]] for this wiki's structure and naming conventions
 ```
 
 ### LLM-Wiki/Index.md (Enhanced)
@@ -262,6 +295,69 @@ SORT file.name ASC
 ## 🎯 What's Next?
 
 Tell Claude what you want to learn about next!
+```
+
+### LLM-Wiki/Schema.md (Configuration & Conventions)
+
+```markdown
+---
+tags: [schema, llm-wiki]
+---
+
+# 📐 LLM Wiki Schema & Conventions
+
+This file defines the structure and naming conventions for your LLM Wiki.
+
+## Folder Organization
+
+| Folder | Purpose | Content Type |
+|--------|---------|--------------|
+| **LLM-Wiki/Notes/** | Full-length articles and notes | Processed sources, comprehensive topics, detailed explanations |
+| **LLM-Wiki/Concepts/** | Atomic concept definitions | Short definitions of terms, ideas, people, technologies |
+| **LLM-Wiki/Attachments/** | Raw sources | Original unmodified content, PDFs, screenshots |
+
+## When to use which?
+
+- **Notes**: "What is X? How does it work? What have I learned about it?" - full coverage of a topic
+- **Concepts**: "What does X mean?" - one-paragraph definition for quick reference
+
+## Naming Conventions
+
+- Use human-readable titles: `Machine Learning.md` not `machine-learning.md`
+- Spaces are fine in Obsidian - keep it readable
+- For duplicates: add context: `Transformer (Deep Learning).md`, `Transformer (Cryptography).md`
+
+## Tagging Conventions
+
+- Use lowercase hyphenated tags: `machine-learning`, `programming/go`, `book-notes`
+- Every page should have at least one topic tag
+- Core system tags are reserved: `llm-wiki`, `help`, `index`, `schema`, `changelog`
+
+## Linking Style
+
+- Use [[WikiLinks]] for internal links between concepts
+- Link to concepts when they are first mentioned
+- Add backlinks to related topics
+- Don't over-link - only link when it adds value
+
+## YAML Frontmatter
+
+Every page should have frontmatter:
+
+```yaml
+---
+title: [Page Title]
+tags: [tag1, tag2]
+created: [YYYY-MM-DD]
+source: [URL or description of source]
+---
+```
+
+## Metadata Best Practices
+
+- Always include `source` when ingesting from external content
+- Always include `created` date for tracking knowledge growth
+- Keep tags focused (2-5 tags per page is ideal)
 ```
 
 ### LLM-Wiki/ChangeLog.md
@@ -313,8 +409,11 @@ Show a "What's next?" menu:
 1. 📥 Ingest something else
 2. ❓ Ask a question about your wiki
 3. 🔍 Check wiki health
-4. 👋 Take a break
+4. 🏠 Return to main menu
+5. 👋 Take a break
 ```
+
+Option 4 returns to the initial interactive menu (for switching vaults, etc.)
 
 ---
 
