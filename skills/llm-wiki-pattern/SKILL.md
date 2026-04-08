@@ -42,6 +42,7 @@ What would you like to do?
 2. 📂 Open an existing Obsidian vault
 3. 📖 Learn more about what this skill can do
 4. ❓ Just ask a question
+5. 👋 Exit / Do something else
 ```
 
 If vault saved (and still exists):
@@ -55,6 +56,7 @@ What would you like to do?
 2. 📂 Open an existing Obsidian vault
 3. 📖 Learn more about what this skill can do
 4. ❓ Just ask a question
+5. 👋 Exit / Do something else
 ```
 
 Then ask the user to pick an option.
@@ -175,10 +177,14 @@ Show this section of the skill and then return to the main menu.
 
 **Interactive Flow:**
 1. Ask what type of source:
+   - 🤖 Auto-detect (recommended - I'll figure it out)
    - URL (web page, YouTube, etc.)
    - Text/paste content
    - Topic (create from scratch)
    - File (PDF, doc, etc.)
+   
+   **If user chooses Auto-detect:** Just ask them to provide the content/URL/text, and you automatically determine the best way to process it.
+
 2. Process and identify key concepts
 3. Determine target file path (LLM-Wiki/Notes/ or LLM-Wiki/Concepts/)
 4. **Check for conflicts**: If a file with the same name already exists:
@@ -369,9 +375,9 @@ tags: [changelog, llm-wiki]
 
 # 📋 LLM Wiki Change Log
 
-## [[Date]]
+## 2024-01-01
 
-> [!success] [Time]
+> [!success] 14:30
 > Vault initialized! Welcome to your LLM Wiki. 🎉
 >
 > Created:
@@ -379,6 +385,8 @@ tags: [changelog, llm-wiki]
 > - [[Index]] - This page
 > - [[Schema]] - Configuration
 ```
+
+**Date format:** Use `YYYY-MM-DD` for dates (e.g., `2024-03-15`). Time is optional but recommended in `HH:MM` 24-hour format.
 
 ---
 
@@ -410,7 +418,7 @@ Show a "What's next?" menu:
 2. ❓ Ask a question about your wiki
 3. 🔍 Check wiki health
 4. 🏠 Return to main menu
-5. 👋 Take a break
+5. 👋 Exit / Do something else
 ```
 
 Option 4 returns to the initial interactive menu (for switching vaults, etc.)
@@ -440,3 +448,64 @@ The skill persists the last used vault path in `skills/llm-wiki-pattern/llm-wiki
 - User says "just tell me, don't save it"
 
 **When in doubt:** Ask! "Would you like me to save this to your knowledge base, or just answer?"
+
+---
+
+## 🌟 Example Usage Scenarios
+
+### Scenario 1: Learning a New Programming Topic
+
+**User:** "I want to learn about React hooks. Can you help me build a knowledge base?"
+
+**Flow:**
+1. Skill shows main menu → user chooses "Create a new Obsidian vault"
+2. User names vault "React-Learning"
+3. Skill creates vault structure at `C:\Users\[name]\Obsidian\React-Learning`
+4. User says: "Ingest this article: https://react.dev/learn/rules-of-hooks"
+5. Skill processes the article, identifies key concepts:
+   - [[Rules of Hooks]] (concept)
+   - [[useState Hook]] (concept)
+   - [[useEffect Hook]] (concept)
+   - "React Hooks Rules" (note with full article)
+6. Shows preview, confirms, creates files
+7. Updates Index and ChangeLog
+
+### Scenario 2: Researching for a Paper
+
+**User:** "I need to organize my research papers on machine learning."
+
+**Flow:**
+1. Skill shows main menu with "Open last vault" option (from memory)
+2. User opens existing "ML-Research" vault
+3. User says: "Here's a PDF I saved - can you ingest it?"
+4. Skill: "What type of source is this? (🤖 Auto-detect / URL / Text / Topic / File)"
+5. User chooses "Auto-detect"
+6. Skill processes PDF, creates:
+   - [[Attention Is All You Need]] (note with paper summary)
+   - [[Transformer Architecture]] (concept)
+   - [[Self-Attention]] (concept)
+7. Asks: "This comprehensive answer would make a great wiki page! Want me to save it?"
+
+### Scenario 3: Quick Question from Existing Knowledge
+
+**User:** "What do I know about transformers?"
+
+**Flow:**
+1. Skill loads Index.md and scans vault
+2. Finds: [[Transformer Architecture]], [[Self-Attention]], [[Attention Is All You Need]]
+3. Synthesizes answer from existing content
+4. Asks: "Want me to save this synthesis as a new note?"
+5. Logs the query in ChangeLog even if not saved
+
+### Scenario 4: Wiki Health Check
+
+**User:** "Can you check my wiki for issues?"
+
+**Flow:**
+1. Skill runs Lint/Health Check
+2. Checks for:
+   - Broken [[WikiLinks]]
+   - Orphaned pages (no incoming links)
+   - Missing YAML frontmatter
+3. Creates a health report note with actionable items
+4. Shows "What's next?" menu

@@ -9,7 +9,7 @@ A collection of custom skills that extend Claude Code with specialized workflows
 
 | Skill | Description |
 |-------|-------------|
-| **[llm-wiki-pattern](./skills/llm-wiki/)** | Build persistent, compounding personal knowledge bases with Obsidian integration |
+| **[llm-wiki-pattern](./skills/llm-wiki-pattern/)** | Build persistent, compounding personal knowledge bases with Obsidian integration |
 
 *More skills coming soon...*
 
@@ -21,7 +21,7 @@ Install via [skills CLI](https://skills.sh/):
 
 ```bash
 # Install just the llm-wiki-pattern skill
-npx skills add cr7hibiki/skill-hub --path skills/llm-wiki
+npx skills add cr7hibiki/skill-hub --path skills/llm-wiki-pattern
 ```
 
 ### Install all skills
